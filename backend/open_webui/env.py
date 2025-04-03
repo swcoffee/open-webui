@@ -11,6 +11,23 @@ import markdown
 from bs4 import BeautifulSoup
 from open_webui.constants import ERROR_MESSAGES
 
+"""
+FakeRedis
+"""
+import fakeredis
+FAKE_REDIS_SERVER = fakeredis.FakeServer()
+def get_device_id(user_id: str):
+    r = fakeredis.FakeStrictRedis(server=FAKE_REDIS_SERVER)
+    # return r.get(f"device_id:{user_id}")
+    device_id = r.get(f"device_id:{user_id}")
+    return device_id.decode('utf-8') if device_id else None
+
+def set_device_id(user_id: str, device_id: str):
+    r = fakeredis.FakeStrictRedis(server=FAKE_REDIS_SERVER)
+    r.set(f"device_id:{user_id}", device_id)
+
+
+
 ####################################
 # Load .env file
 ####################################

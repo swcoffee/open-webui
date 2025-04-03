@@ -28,6 +28,7 @@ from open_webui.env import (
     WEBUI_AUTH_COOKIE_SAME_SITE,
     WEBUI_AUTH_COOKIE_SECURE,
     SRC_LOG_LEVELS,
+    set_device_id
 )
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse, Response
@@ -373,8 +374,12 @@ async def signin(request: Request, response: Response, form_data: SigninForm):
         if expires_delta:
             expires_at = int(time.time()) + int(expires_delta.total_seconds())
 
+        # generate device id
+        device_id = str(uuid.uuid4())
+        set_device_id(user.id, device_id)
+
         token = create_token(
-            data={"id": user.id},
+            data={"id": user.id, "device_id": device_id},
             expires_delta=expires_delta,
         )
 

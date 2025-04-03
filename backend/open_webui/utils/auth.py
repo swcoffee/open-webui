@@ -19,6 +19,7 @@ from open_webui.env import (
     TRUSTED_SIGNATURE_KEY,
     STATIC_DIR,
     SRC_LOG_LEVELS,
+    get_device_id
 )
 
 from fastapi import BackgroundTasks, Depends, HTTPException, Request, Response, status
@@ -204,6 +205,13 @@ def get_current_user(
                 detail=ERROR_MESSAGES.INVALID_TOKEN,
             )
         else:
+            uid = data.get("id", "")
+            device_id = get_device_id(uid)
+            if device_id != data.get("device_id", ""):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=ERROR_MESSAGES.INVALID_TOKEN,
+                )
             # Refresh the user's last active timestamp asynchronously
             # to prevent blocking the request
             if background_tasks:
