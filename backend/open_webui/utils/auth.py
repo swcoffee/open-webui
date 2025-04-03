@@ -1,5 +1,6 @@
 import logging
 import uuid
+from backend.open_webui.config import get_device_id
 import jwt
 import base64
 import hmac
@@ -204,6 +205,14 @@ def get_current_user(
                 detail=ERROR_MESSAGES.INVALID_TOKEN,
             )
         else:
+            uid = data.get("id", "")
+            device_id = get_device_id(uid)
+            if device_id != data.get("device_id", ""):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=ERROR_MESSAGES.INVALID_TOKEN,
+                )
+
             # Refresh the user's last active timestamp asynchronously
             # to prevent blocking the request
             if background_tasks:

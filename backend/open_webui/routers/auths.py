@@ -31,7 +31,7 @@ from open_webui.env import (
 )
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse, Response
-from open_webui.config import OPENID_PROVIDER_URL, ENABLE_OAUTH_SIGNUP, ENABLE_LDAP
+from open_webui.config import OPENID_PROVIDER_URL, ENABLE_OAUTH_SIGNUP, ENABLE_LDAP, set_device_id
 from pydantic import BaseModel
 from open_webui.utils.misc import parse_duration, validate_email_format
 from open_webui.utils.auth import (
@@ -77,8 +77,12 @@ async def get_session_user(
     if expires_delta:
         expires_at = int(time.time()) + int(expires_delta.total_seconds())
 
+    # generate device id
+    device_id = str(uuid.uuid4())
+    set_device_id(user.id, device_id)
+
     token = create_token(
-        data={"id": user.id},
+        data={"id": user.id, "device_id": device_id},
         expires_delta=expires_delta,
     )
 

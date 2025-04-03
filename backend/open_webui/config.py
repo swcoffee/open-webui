@@ -33,6 +33,19 @@ from open_webui.internal.db import Base, get_db
 from open_webui.utils.redis import get_redis_connection
 
 
+"""
+FakeRedis
+"""
+import fakeredis
+FAKE_REDIS_SERVER = fakeredis.FakeServer()
+def get_device_id(user_id: str):
+    r = fakeredis.FakeStrictRedis(server=FAKE_REDIS_SERVER)
+    return r.get(f"device_id:{user_id}","")
+
+def set_device_id(user_id: str, device_id: str):
+    r = fakeredis.FakeStrictRedis(server=FAKE_REDIS_SERVER)
+    r.set(f"device_id:{user_id}", device_id)
+
 class EndpointFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         return record.getMessage().find("/health") == -1
